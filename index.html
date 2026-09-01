@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Transformation Trail</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #f7f7f5;
+    color: #1a1a1a;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+  .app {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 20px 0 12px;
+    border-bottom: 3px solid #ff6a13;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  header .sub {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .screen {
+    display: none;
+    animation: fade 0.25s ease;
+  }
+  .screen.active { display: block; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h2 {
+    font-size: 20px;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 16px;
+    margin: 20px 0 8px;
+    color: #1a1a1a;
+  }
+  p { margin: 0 0 12px; font-size: 15px; }
+  .lead {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 16px;
+  }
+  .progress {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #ff6a13;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .card {
+    background: #ffffff;
+    border: 1px solid #e5e5e0;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .story {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 14px;
+  }
+  .puzzle {
+    background: #1a1a1a;
+    color: #f0f0e8;
+    border-radius: 8px;
+    padding: 14px;
+    font-family: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre;
+    overflow-x: auto;
+    margin: 12px 0 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .instruction {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 14px 0 12px;
+    color: #1a1a1a;
+  }
+  .answer-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    margin: 12px 0;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 14px 14px;
+    font-size: 18px;
+    font-weight: 600;
+    border: 2px solid #d5d5d0;
+    border-radius: 8px;
+    background: #fff;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #ff6a13;
+  }
+  .btn {
+    display: inline-block;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #ff6a13;
+    color: #fff;
+    letter-spacing: 0.02em;
+    transition: background 0.15s;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: inherit;
+  }
+  .btn:hover { background: #e85a08; }
+  .btn:active { background: #cc4f07; }
+  .btn.secondary {
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #d5d5d0;
+  }
+  .btn.secondary:hover { border-color: #999; background: #f7f7f5; }
+  .btn.large {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+  }
+  .btn.submit {
+    padding: 14px 22px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .hint-row {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 8px;
+    flex-wrap: wrap;
+  }
+  .hint-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #fff;
+    color: #666;
+    border: 1px solid #d5d5d0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .hint-btn:hover { border-color: #ff6a13; color: #ff6a13; }
+  .hint-btn.revealed {
+    background: #fff4ea;
+    border-color: #ff6a13;
+    color: #1a1a1a;
+    cursor: default;
+    text-align: left;
+    font-weight: 500;
+  }
+  .feedback {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.success {
+    background: #eaf6ec;
+    border: 1px solid #7bb17e;
+    color: #2a5a2c;
+  }
+  .feedback.error {
+    background: #fdecec;
+    border: 1px solid #d97070;
+    color: #7a1f1f;
+  }
+  .collected {
+    background: #1a1a1a;
+    color: #ff6a13;
+    padding: 14px;
+    border-radius: 8px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-align: center;
+    margin: 12px 0;
+  }
+  .collected .slot {
+    display: inline-block;
+    min-width: 22px;
+    padding: 0 2px;
+  }
+  .collected .slot.empty { color: #444; }
+  .final-code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 26px;
+    letter-spacing: 0.35em;
+    text-align: center;
+    padding: 18px;
+    font-weight: 700;
+  }
+  .passphrase-box {
+    background: #ff6a13;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 18px 0;
+  }
+  .passphrase-box .label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.9;
+    margin-bottom: 8px;
+  }
+  .passphrase-box .value {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .mailto-btn {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    padding: 14px 20px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    margin: 12px 0;
+  }
+  .mailto-btn:hover { background: #333; }
+  .divider {
+    border: none;
+    border-top: 1px solid #e5e5e0;
+    margin: 16px 0;
+  }
+  footer {
+    margin-top: 24px;
+    padding: 16px 0;
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    border-top: 1px solid #e5e5e0;
+  }
+  .kicker {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #ff6a13;
+    margin-bottom: 6px;
+  }
+  .mission-list {
+    padding-left: 20px;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #333;
+  }
+  .mission-list li { margin-bottom: 4px; }
+  @media (max-width: 480px) {
+    header h1 { font-size: 19px; }
+    .puzzle { font-size: 11px; }
+    .btn.submit { padding: 14px 16px; font-size: 14px; }
+    input[type="text"] { font-size: 16px; padding: 13px 10px; }
+    .final-code { font-size: 22px; letter-spacing: 0.25em; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>The Transformation Trail</h1>
+    <div class="sub">A mission across the program</div>
+  </header>
+
+  <!-- START SCREEN -->
+  <section class="screen active" id="screen-start">
+    <div class="card">
+      <div class="kicker">Briefing</div>
+      <h2>Six teams. One outcome. Limited time.</h2>
+      <p class="lead">A major tech program is approaching a critical delivery window. The teams know their systems. The owners know their decisions. But the signals across the program do not fully line up.</p>
+      <p class="lead">Your mission is not to take over. Your mission is to see the system, surface what matters, and unlock the passphrase.</p>
+      <hr class="divider">
+      <p><strong>Five challenges. One character each. One final code.</strong></p>
+      <ul class="mission-list">
+        <li>Read the signals across domains.</li>
+        <li>Find the constraint others haven't named yet.</li>
+        <li>Enable the right owner to make the right call.</li>
+      </ul>
+    </div>
+    <button class="btn large" onclick="showScreen('screen-c1')">Start the mission</button>
+  </section>
+
+  <!-- CHALLENGE 1 -->
+  <section class="screen" id="screen-c1">
+    <div class="progress">Challenge 1 of 5 — Delivery confidence</div>
+    <div class="card">
+      <h2>The Green Board</h2>
+      <p class="story">A weekly status pack lands just before the steering call. Six workstreams are reporting green. The RAG colours were set earlier in the week, but the sprint data was pulled later. One line has drifted from its own trajectory.</p>
+      <div class="puzzle">Workstream           Status   Committed   Closed   Sprint   Last 3 sprints
+Access management    Green        34        33      3/3     32 → 33 → 33
+Data lakehouse       Green        28        27      3/3     26 → 27 → 27
+Payments rewrite     Green        42        38      3/3     41 → 40 → 38
+API gateway          Green        31        30      3/3     29 → 30 → 30
+Control framework    Green        19        18      3/3     18 → 18 → 18
+Observability        Green        25        24      3/3     23 → 24 → 24</div>
+      <div class="instruction">Identify the workstream whose reported health disagrees with its own trend. Take the first letter of its name.</div>
+      <div class="answer-row">
+        <input type="text" id="a1" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="?">
+        <button class="btn submit" onclick="checkAnswer(1)">Submit</button>
+      </div>
+      <div class="feedback" id="fb1"></div>
+      <div class="hint-row">
+        <button class="hint-btn" id="h1a" onclick="revealHint(1,'a','Ratios look acceptable everywhere. Look at direction, not level.')">Hint 1</button>
+        <button class="hint-btn" id="h1b" onclick="revealHint(1,'b','Only one row is trending the wrong way.')">Hint 2</button>
+      </div>
+    </div>
+    <div id="next1" style="display:none;">
+      <button class="btn large" onclick="showScreen('screen-c2')">Continue →</button>
+    </div>
+  </section>
+
+  <!-- CHALLENGE 2 -->
+  <section class="screen" id="screen-c2">
+    <div class="progress">Challenge 2 of 5 — Dependency sequencing</div>
+    <div class="card">
+      <h2>The Critical First Move</h2>
+      <p class="story">Eight work items must ship before cutover. Several teams are arguing for their item to go first. Only one item actually unblocks the rest.</p>
+      <div class="puzzle">A depends on: C, D
+B depends on: E, G
+C depends on: F, H
+D depends on: F
+E depends on: H
+F depends on: H
+G depends on: H
+H depends on: nothing</div>
+      <div class="instruction">Identify the single item that must ship first for anything else to move. Take its letter.</div>
+      <div class="answer-row">
+        <input type="text" id="a2" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="?">
+        <button class="btn submit" onclick="checkAnswer(2)">Submit</button>
+      </div>
+      <div class="feedback" id="fb2"></div>
+      <div class="hint-row">
+        <button class="hint-btn" id="h2a" onclick="revealHint(2,'a','The visible bottleneck may still depend on something else.')">Hint 1</button>
+        <button class="hint-btn" id="h2b" onclick="revealHint(2,'b','Find the only item with no prerequisites.')">Hint 2</button>
+      </div>
+    </div>
+    <div id="next2" style="display:none;">
+      <button class="btn large" onclick="showScreen('screen-c3')">Continue →</button>
+    </div>
+  </section>
+
+  <!-- CHALLENGE 3 -->
+  <section class="screen" id="screen-c3">
+    <div class="progress">Challenge 3 of 5 — Cross-domain visibility</div>
+    <div class="card">
+      <h2>The Lion Count</h2>
+      <p class="story">A small pride of lion plushies has appeared in the main hall. They are not hidden. They are placed visibly around the space. You will not get the right answer from one spot.</p>
+      <div class="instruction">Walk the main hall. Count the lion plushies. Enter the number.</div>
+      <div class="answer-row">
+        <input type="text" id="a3" maxlength="2" autocomplete="off" inputmode="numeric" pattern="[0-9]*" spellcheck="false" placeholder="?">
+        <button class="btn submit" onclick="checkAnswer(3)">Submit</button>
+      </div>
+      <div class="feedback" id="fb3"></div>
+      <div class="hint-row">
+        <button class="hint-btn" id="h3a" onclick="revealHint(3,'a','They are placed at visible height, not hidden.')">Hint 1</button>
+        <button class="hint-btn" id="h3b" onclick="revealHint(3,'b','Walk one full loop before answering.')">Hint 2</button>
+      </div>
+    </div>
+    <div id="next3" style="display:none;">
+      <button class="btn large" onclick="showScreen('screen-c4')">Continue →</button>
+    </div>
+  </section>
+
+  <!-- CHALLENGE 4 -->
+  <section class="screen" id="screen-c4">
+    <div class="progress">Challenge 4 of 5 — Risk and control</div>
+    <div class="card">
+      <h2>The Only Irreversible One</h2>
+      <p class="story">A change advisory board reviews six changes for cutover weekend. Every one sounds risky. Only one has no real path back.</p>
+      <div class="puzzle">1. Drop a legacy column from the users table.
+   A nightly snapshot exists and has been verified this morning.
+
+2. Rotate the production database master key.
+   Old key retained in the KMS for 30 days.
+
+3. Migrate customer records to a new schema, then run a
+   destructive DROP on the old schema in the same transaction.
+   No pre-migration backup taken.
+
+4. Reduce DNS TTL from 3600 seconds to 60 seconds.
+
+5. Force-push a rewritten history to the main branch of the
+   deployment repo. Every engineer has a local clone from
+   this morning.
+
+6. Toggle a feature flag on the new checkout flow at 5% traffic.</div>
+      <div class="instruction">Identify the only genuinely irreversible change. Take its number.</div>
+      <div class="answer-row">
+        <input type="text" id="a4" maxlength="1" autocomplete="off" inputmode="numeric" pattern="[0-9]*" spellcheck="false" placeholder="?">
+        <button class="btn submit" onclick="checkAnswer(4)">Submit</button>
+      </div>
+      <div class="feedback" id="fb4"></div>
+      <div class="hint-row">
+        <button class="hint-btn" id="h4a" onclick="revealHint(4,'a','&ldquo;Sounds risky&rdquo; and &ldquo;has no rollback&rdquo; are different.')">Hint 1</button>
+        <button class="hint-btn" id="h4b" onclick="revealHint(4,'b','Five of the six leave a previous state somewhere.')">Hint 2</button>
+      </div>
+    </div>
+    <div id="next4" style="display:none;">
+      <button class="btn large" onclick="showScreen('screen-c5')">Continue →</button>
+    </div>
+  </section>
+
+  <!-- CHALLENGE 5 -->
+  <section class="screen" id="screen-c5">
+    <div class="progress">Challenge 5 of 5 — Precision under pressure</div>
+    <div class="card">
+      <h2>The Two-Code Handshake</h2>
+      <p class="story">An integration test failed with an unexpected HTTP status code. The on-call left a cryptic note:</p>
+      <div class="puzzle">"Take the famous joke code — RFC 2324, the one about a
+teapot. Add the code returned when a resource has been
+permanently removed and clients should not come back to
+this URL. Sum them. Give me the last digit."</div>
+      <div class="instruction">Find both HTTP status codes. Add them. Enter the last digit.</div>
+      <div class="answer-row">
+        <input type="text" id="a5" maxlength="1" autocomplete="off" inputmode="numeric" pattern="[0-9]*" spellcheck="false" placeholder="?">
+        <button class="btn submit" onclick="checkAnswer(5)">Submit</button>
+      </div>
+      <div class="feedback" id="fb5"></div>
+      <div class="hint-row">
+        <button class="hint-btn" id="h5a" onclick="revealHint(5,'a','One code is the famous teapot code.')">Hint 1</button>
+        <button class="hint-btn" id="h5b" onclick="revealHint(5,'b','404 and 410 are different. One means &ldquo;not found&rdquo;; the other means &ldquo;gone for good.&rdquo;')">Hint 2</button>
+      </div>
+    </div>
+    <div id="next5" style="display:none;">
+      <button class="btn large" onclick="showScreen('screen-code')">Assemble the code →</button>
+    </div>
+  </section>
+
+  <!-- FINAL CODE SCREEN -->
+  <section class="screen" id="screen-code">
+    <div class="progress">Final step — Code entry</div>
+    <div class="card">
+      <h2>Enter your trail code</h2>
+      <p class="lead">You collected one character from each of the five challenges.</p>
+      <div class="collected" id="collected-display">
+        <span class="slot" id="slot1">_</span>
+        <span class="slot" id="slot2">_</span>
+        <span class="slot" id="slot3">_</span>
+        <span class="slot" id="slot4">_</span>
+        <span class="slot" id="slot5">_</span>
+      </div>
+      <p class="instruction">Enter your five-character trail code.</p>
+      <div class="answer-row">
+        <input type="text" id="finalcode" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="?????">
+        <button class="btn submit" onclick="checkFinal()">Unlock</button>
+      </div>
+      <div class="feedback" id="fbfinal"></div>
+    </div>
+  </section>
+
+  <!-- PASSPHRASE UNLOCK SCREEN -->
+  <section class="screen" id="screen-unlock">
+    <div class="card">
+      <div class="kicker">Mission complete</div>
+      <h2>Code accepted</h2>
+      <p class="lead">You read the signals, sequenced the moves, and named the constraint. The passphrase is yours.</p>
+      <div class="passphrase-box">
+        <div class="label">Passphrase</div>
+        <div class="value">ALIGN FOR IMPACT</div>
+      </div>
+      <p><strong>Find a marked team member and say the passphrase.</strong></p>
+      <hr class="divider">
+      <h3>Sweepstakes</h3>
+      <p>Enter the sweepstakes by sending the passphrase from your work email.</p>
+      <a class="mailto-btn" href="mailto:andreas.clemenz@ing.com?subject=Transformation%20Trail%20Sweepstakes&body=Passphrase%3A%20ALIGN%20FOR%20IMPACT">Enter the sweepstakes</a>
+    </div>
+  </section>
+
+  <footer>No data is stored by this page.</footer>
+</div>
+
+<script>
+  const answers = { 1: 'P', 2: 'H', 3: '7', 4: '3', 5: '8' };
+  const successMessages = {
+    1: 'Correct. The green status passes, but the trajectory does not.',
+    2: 'Correct. H is the only item with no prerequisites.',
+    3: 'Correct. You needed the whole room, not one viewpoint.',
+    4: 'Correct. The destructive migration has no backstop.',
+    5: 'Correct. 418 + 410 = 828. Last digit: 8.'
+  };
+  const failureMessages = {
+    1: 'Not accepted. Look for the row where the trend moves in the wrong direction.',
+    2: 'Not accepted. Trace every dependency back to its earliest prerequisite.',
+    3: 'Not accepted. Walk the full loop and count again.',
+    4: 'Not accepted. Read each option for its recovery path.',
+    5: 'Not accepted. Check the second status code carefully.'
+  };
+  const solved = { 1: false, 2: false, 3: false, 4: false, 5: false };
+  const FINAL_CODE = 'PH738';
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (id === 'screen-code') updateCollected();
+  }
+
+  function checkAnswer(n) {
+    const input = document.getElementById('a' + n);
+    const fb = document.getElementById('fb' + n);
+    const raw = (input.value || '').trim().toUpperCase();
+    if (!raw) {
+      fb.className = 'feedback error show';
+      fb.textContent = 'Enter your answer to submit.';
+      return;
+    }
+    if (raw === answers[n].toUpperCase()) {
+      solved[n] = true;
+      fb.className = 'feedback success show';
+      fb.textContent = successMessages[n];
+      input.disabled = true;
+      document.getElementById('next' + n).style.display = 'block';
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = failureMessages[n];
+    }
+  }
+
+  function revealHint(n, which, text) {
+    const btn = document.getElementById('h' + n + which);
+    if (btn.classList.contains('revealed')) return;
+    btn.classList.add('revealed');
+    btn.innerHTML = text;
+  }
+
+  function updateCollected() {
+    for (let i = 1; i <= 5; i++) {
+      const slot = document.getElementById('slot' + i);
+      if (solved[i]) {
+        slot.textContent = answers[i];
+        slot.classList.remove('empty');
+      } else {
+        slot.textContent = '_';
+        slot.classList.add('empty');
+      }
+    }
+  }
+
+  function checkFinal() {
+    const input = document.getElementById('finalcode');
+    const fb = document.getElementById('fbfinal');
+    const raw = (input.value || '').replace(/\s+/g, '').toUpperCase();
+    if (raw === FINAL_CODE) {
+      showScreen('screen-unlock');
+    } else {
+      fb.className = 'feedback error show';
+      fb.textContent = 'Code not accepted. Check your five collected characters and try again.';
+    }
+  }
+
+  document.querySelectorAll('input[type="text"]').forEach(el => {
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const id = el.id;
+        if (id.startsWith('a')) {
+          checkAnswer(parseInt(id.substring(1), 10));
+        } else if (id === 'finalcode') {
+          checkFinal();
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>
