@@ -1,93 +1,105 @@
 <!doctype html>
-<html lang="en" data-theme="auto" data-size="100">
+<html lang="en" data-theme="dark" data-size="100" data-mode="game">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ff6200">
 <title>The Transformation Trail - Programme Atlas</title>
 <script>
-/* ===== EVENT SWITCH =====
-   false = test version (simulated response, sample coffee display, image placeholders visible)
-   true  = TechFest version (all test-only elements hidden) */
-const EVENT_MODE=false;
-document.documentElement.classList.toggle('event',EVENT_MODE);
+/* ============================================================
+   THE TRANSFORMATION TRAIL - settings you may change on the day
+   ------------------------------------------------------------
+   mode   : 'game'        the Trail runs normally
+            'maintenance' visitors see a short "back soon" screen
+   stops  : venue  false  removes the walk / venue clue
+            people false  removes the meet-a-colleague stop
+   remote : 'status.json' lets you change the two settings above
+            by editing status.json only (no change to this file).
+            Set to '' to ignore status.json.
+   ============================================================ */
+const SETTINGS = {
+  mode: 'game',
+  stops: { venue: true, people: true },
+  maintenanceMessage: '',
+  remote: 'status.json'
+};
 </script>
 <style>
-:root{--o:#ff6200;--b:#2563a8;--c:#fff8ed;--i:#242120;--s:#fff;--m:#655f5a;--sh:#302820;--sc:1;--red:#c62828;--amber:#f5a623;--green:#2f8f57}html[data-theme="dark"]{--c:#181b20;--i:#fff8ed;--s:#252a31;--m:#d8d0c6;--sh:#08090b}@media(prefers-color-scheme:dark){html[data-theme="auto"]{--c:#181b20;--i:#fff8ed;--s:#252a31;--m:#d8d0c6;--sh:#08090b}}html[data-size="115"]{--sc:1.15}html[data-size="130"]{--sc:1.3}*{box-sizing:border-box}html{font-size:calc(16px*var(--sc));background:var(--c);scroll-behavior:smooth}body{margin:0;background:var(--c);color:var(--i);font-family:Arial,Helvetica,sans-serif;line-height:1.5}.app{width:min(100%,840px);margin:auto;padding:0 14px 44px}.stripe{height:10px;margin:0 -14px;background:linear-gradient(90deg,var(--o) 0 62%,var(--b) 62% 83%,var(--i) 83%)}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--c) 96%,transparent)}.brand{font-weight:900}.tools{display:flex;gap:5px}.tool{min-width:44px;min-height:44px;border:2px solid var(--i);background:var(--s);color:var(--i);font-weight:900;cursor:pointer}.tool[aria-pressed="true"]{background:var(--o);color:#1d1916}.progress{height:10px;border:2px solid var(--i);background:var(--s);margin:2px 0 18px}.progress span{display:block;height:100%;width:0;background:var(--o)}.screen{display:none}.screen.active{display:block}.panel{background:var(--s);border:3px solid var(--i);box-shadow:7px 7px 0 var(--sh);padding:25px 19px;margin:12px 0 24px;position:relative}.panel:before{content:"";position:absolute;right:-3px;top:-3px;width:58px;height:17px;background:var(--o);border-left:3px solid var(--i);border-bottom:3px solid var(--i)}.eyebrow{display:inline-block;background:var(--c);border:2px solid var(--i);padding:4px 8px;font-size:.74rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.title{font-size:clamp(2.3rem,10vw,4.4rem);line-height:.92;letter-spacing:-.045em;text-transform:uppercase;margin:.55rem 0 1rem}.accent{color:var(--o)}h2{font-size:clamp(1.65rem,7vw,2.55rem);line-height:1;margin:.65rem 0;text-transform:uppercase}.lead{font-size:1.08rem}.note{padding:12px 14px;margin:14px 0;border-left:8px solid var(--b);background:color-mix(in srgb,var(--b) 10%,var(--s))}.note.orange{border-color:var(--o);background:color-mix(in srgb,var(--o) 10%,var(--s))}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.btn{min-height:48px;border:3px solid var(--i);background:var(--o);color:#201b18;padding:11px 15px;font-weight:900;box-shadow:4px 4px 0 var(--sh);cursor:pointer}.btn.alt{background:var(--b);color:#fff}.btn.light{background:var(--s);color:var(--i)}.btn:focus-visible,.choice:focus-visible,.tool:focus-visible,input:focus-visible{outline:4px solid var(--b);outline-offset:4px}.cards,.choices{display:grid;gap:12px;margin:16px 0}.card,.choice{border:3px solid var(--i);background:var(--s);color:var(--i);padding:13px;text-align:left;box-shadow:4px 4px 0 var(--sh)}.choice{width:100%;cursor:pointer}.choice.selected{background:color-mix(in srgb,var(--o) 15%,var(--s));transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--sh)}.choice strong{display:block}.choice small{display:block;color:var(--m);margin-top:3px}.rag{display:inline-block;padding:3px 8px;font-size:.78rem;font-weight:900}.rag.red{background:var(--red);color:#fff}.rag.amber{background:var(--amber);color:#241f20}.rag.green{background:var(--green);color:#fff}.metric{font-size:1.55rem;font-weight:900}.card ul{padding-left:19px;margin:.55rem 0}.progs{display:grid;gap:9px;margin:16px 0}.prog{border:3px solid var(--i);border-left:10px solid var(--amber);background:var(--s);padding:9px 12px;box-shadow:4px 4px 0 var(--sh)}.prog.red{border-left-color:var(--red)}.prog .what{color:var(--m)}.feedback,.hint,.reveal{display:none;padding:12px 14px;margin:13px 0;border:3px solid var(--i)}.feedback.show,.hint.show,.reveal.show{display:block}.feedback.ok{background:color-mix(in srgb,var(--b) 18%,var(--s))}.feedback.bad{background:color-mix(in srgb,var(--o) 16%,var(--s))}.hint{background:var(--c)}.coffee{display:grid;grid-template-columns:1fr 1fr;border:3px solid var(--i);margin:14px 0}.coffee div{padding:12px;text-align:center;border:1px solid var(--i);font-weight:800}.field{width:100%;min-height:48px;border:3px solid var(--i);background:var(--s);color:var(--i);padding:10px}.token{width:86px;height:76px;margin:16px auto;display:grid;place-items:center;text-align:center;background:var(--o);color:#201b18;border:3px solid var(--i);font-weight:900;clip-path:polygon(24% 4%,76% 4%,100% 50%,76% 96%,24% 96%,0 50%)}.check{font-size:2.4rem;font-weight:900;color:var(--b)}.footer{text-align:center;color:var(--m);font-size:.75rem}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(min-width:680px){.cards.three{grid-template-columns:repeat(3,1fr)}.progs{grid-template-columns:repeat(2,1fr)}.panel{padding:30px 28px}}@media(max-width:420px){.brand{display:none}.panel{padding:20px 14px}.actions .btn{width:100%}.tools{margin-left:auto}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(forced-colors:active){*{box-shadow:none!important}}
-button,input{font:inherit}.tool{font-size:16px}[hidden]{display:none!important}.event .test-only{display:none!important}
-.imgslot{margin:16px 0}.imgslot img{display:block;max-width:100%;height:auto;max-height:60vh;margin:0 auto;border:3px solid var(--i);box-shadow:4px 4px 0 var(--sh)}.imgslot figcaption{margin-top:9px;font-weight:800;text-align:center}.imgslot.empty img{display:none}.imgslot.empty:before{content:attr(data-placeholder);display:grid;place-items:center;min-height:140px;padding:14px;border:3px dashed var(--i);background:var(--c);color:var(--m);font-weight:800;text-align:center}.event .imgslot.empty:before{display:none}
+:root{--o:#ff6200;--b:#2563a8;--c:#fff8ed;--i:#242120;--s:#fff;--m:#655f5a;--sh:#302820;--sc:1;--red:#c62828;--amber:#f5a623;--green:#2f8f57}html[data-theme="dark"]{--c:#181b20;--i:#fff8ed;--s:#252a31;--m:#d8d0c6;--sh:#08090b}@media(prefers-color-scheme:dark){html[data-theme="auto"]{--c:#181b20;--i:#fff8ed;--s:#252a31;--m:#d8d0c6;--sh:#08090b}}html[data-size="115"]{--sc:1.15}html[data-size="130"]{--sc:1.3}*{box-sizing:border-box}html{font-size:calc(16px*var(--sc));background:var(--c);scroll-behavior:smooth}body{margin:0;background:var(--c);color:var(--i);font-family:Arial,Helvetica,sans-serif;line-height:1.5}.app{width:min(100%,840px);margin:auto;padding:0 14px 44px}.stripe{height:10px;margin:0 -14px;background:linear-gradient(90deg,var(--o) 0 62%,var(--b) 62% 83%,var(--i) 83%)}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--c) 96%,transparent)}.brand{font-weight:900}.tools{display:flex;gap:5px}.tool{min-width:44px;min-height:44px;border:2px solid var(--i);background:var(--s);color:var(--i);font-weight:900;cursor:pointer}.tool[aria-pressed="true"]{background:var(--o);color:#1d1916}.progress{height:10px;border:2px solid var(--i);background:var(--s);margin:2px 0 18px}.progress span{display:block;height:100%;width:0;background:var(--o)}.screen{display:none}.screen.active{display:block}.panel{background:var(--s);border:3px solid var(--i);box-shadow:7px 7px 0 var(--sh);padding:25px 19px;margin:12px 0 24px;position:relative}.panel:before{content:"";position:absolute;right:-3px;top:-3px;width:58px;height:17px;background:var(--o);border-left:3px solid var(--i);border-bottom:3px solid var(--i)}.eyebrow{display:inline-block;background:var(--c);border:2px solid var(--i);padding:4px 8px;font-size:.74rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.title{font-size:clamp(2.3rem,10vw,4.4rem);line-height:.92;letter-spacing:-.045em;text-transform:uppercase;margin:.55rem 0 1rem}.accent{color:var(--o)}h2{font-size:clamp(1.65rem,7vw,2.55rem);line-height:1;margin:.65rem 0;text-transform:uppercase}.lead{font-size:1.08rem}.note{padding:12px 14px;margin:14px 0;border-left:8px solid var(--b);background:color-mix(in srgb,var(--b) 10%,var(--s))}.note.orange{border-color:var(--o);background:color-mix(in srgb,var(--o) 10%,var(--s))}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.btn{min-height:48px;border:3px solid var(--i);background:var(--o);color:#201b18;padding:11px 15px;font-weight:900;box-shadow:4px 4px 0 var(--sh);cursor:pointer}.btn.alt{background:var(--b);color:#fff}.btn.light{background:var(--s);color:var(--i)}.btn:focus-visible,.choice:focus-visible,.tool:focus-visible,input:focus-visible{outline:4px solid var(--b);outline-offset:4px}.cards,.choices{display:grid;gap:12px;margin:16px 0}.card,.choice{border:3px solid var(--i);background:var(--s);color:var(--i);padding:13px;text-align:left;box-shadow:4px 4px 0 var(--sh)}.choice{width:100%;cursor:pointer}.choice.selected{background:color-mix(in srgb,var(--o) 15%,var(--s));transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--sh)}.choice strong{display:block}.rag{display:inline-block;padding:3px 8px;font-size:.78rem;font-weight:900}.rag.red{background:var(--red);color:#fff}.rag.amber{background:var(--amber);color:#241f20}.rag.green{background:var(--green);color:#fff}.metric{font-size:1.55rem;font-weight:900}.card ul{padding-left:19px;margin:.55rem 0}.progs{display:grid;gap:9px;margin:16px 0}.prog{border:3px solid var(--i);border-left:10px solid var(--amber);background:var(--s);padding:9px 12px;box-shadow:4px 4px 0 var(--sh)}.prog.red{border-left-color:var(--red)}.prog .what{color:var(--m)}.feedback,.hint{display:none;padding:12px 14px;margin:13px 0;border:3px solid var(--i)}.feedback.show,.hint.show{display:block}.feedback.ok{background:color-mix(in srgb,var(--b) 18%,var(--s))}.feedback.bad{background:color-mix(in srgb,var(--o) 16%,var(--s))}.hint{background:var(--c)}.field{width:100%;min-height:48px;border:3px solid var(--i);background:var(--s);color:var(--i);padding:10px}.token{width:92px;height:92px;margin:16px auto;display:grid;place-items:center;text-align:center;background:var(--b);color:#fff;border:3px solid var(--i);border-radius:50%;font-weight:900}.check{font-size:2.4rem;font-weight:900;color:var(--b)}.footer{text-align:center;color:var(--m);font-size:.75rem}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(min-width:680px){.cards.three{grid-template-columns:repeat(3,1fr)}.progs{grid-template-columns:repeat(2,1fr)}.panel{padding:30px 28px}}@media(max-width:420px){.brand{display:none}.panel{padding:20px 14px}.actions .btn{width:100%}.tools{margin-left:auto}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(forced-colors:active){*{box-shadow:none!important}}
+button,input{font:inherit}.tool{font-size:16px}[hidden]{display:none!important}
 .inwork{display:block;margin-top:9px;padding-top:9px;border-top:2px dashed var(--i)}.inwork .area{margin-right:6px}.note ol{margin:.5rem 0 0;padding-left:22px}.recap{border:3px solid var(--i);background:var(--c);padding:10px 14px;margin:16px 0}.recap summary{cursor:pointer;font-weight:900}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0 0}.area{display:inline-block;padding:2px 8px;border:2px solid var(--i);font-size:.78rem;font-weight:900;line-height:1.4}.area.tech{background:var(--b);color:#fff}.area.tr{background:var(--o);color:#201b18}.area.both{background:var(--s);color:var(--i);border-left:8px solid var(--b);border-right:8px solid var(--o)}.area.minor{background:var(--s);color:var(--i)}.area.tech.minor{border-left:8px solid var(--b)}.area.tr.minor{border-left:8px solid var(--o)}
 .duo{display:grid;gap:10px;margin:14px 0}.duo>div{border:3px solid var(--i);border-top:10px solid var(--b);background:var(--s);padding:10px 13px;box-shadow:4px 4px 0 var(--sh)}.duo>.tr{border-top-color:var(--o)}.duo .sub{display:block;color:var(--m)}.duo ul{margin:.4rem 0 0;padding-left:20px}@media(min-width:520px){.duo{grid-template-columns:1fr 1fr}}
 .metpick{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}.metBtn{min-height:44px;padding:8px 12px;border:3px solid var(--i);background:var(--s);color:var(--i);font-weight:900;cursor:pointer}.metBtn[aria-pressed="true"][data-area="tech"]{background:var(--b);color:#fff}.metBtn[aria-pressed="true"][data-area="tr"]{background:var(--o);color:#201b18}.metBtn[aria-pressed="true"][data-area="both"]{background:var(--i);color:var(--s)}
+/* Photos: portrait phone pictures (Pixel 8 Pro portrait is 3:4) */
+.imgslot{margin:16px 0}.imgslot img{display:block;width:auto;max-width:100%;max-height:52vh;height:auto;margin:0 auto;border:3px solid var(--i);box-shadow:4px 4px 0 var(--sh);background:var(--c)}.imgslot figcaption{margin-top:9px;font-weight:800;text-align:center}.imgslot .missing{display:none;place-items:center;min-height:150px;padding:14px;border:3px dashed var(--i);background:var(--c);color:var(--m);font-weight:800;text-align:center}.imgslot.no-photo img{display:none}.imgslot.no-photo .missing{display:grid}
+/* Maintenance */
+#maintenance{display:none}html[data-mode="maintenance"] #maintenance{display:block}html[data-mode="maintenance"] .screen:not(#maintenance){display:none!important}html[data-mode="maintenance"] .progress{visibility:hidden}
 </style></head>
 <body><main class="app"><div class="stripe"></div><header class="top"><div class="brand">COO Tech &amp; Transformation · TechFest</div><div class="tools"><button class="tool" id="theme" aria-label="Change colour theme">◐</button><button class="tool size" data-size="100" aria-pressed="true">A</button><button class="tool size" data-size="115" aria-pressed="false">A+</button><button class="tool size" data-size="130" aria-pressed="false">A++</button></div></header><div class="progress"><span id="bar"></span></div>
 
+<section id="maintenance"><div class="panel"><div class="eyebrow">The Transformation Trail</div><h2>Back in a moment</h2><p id="maintMsg" class="lead"></p><div class="actions"><button class="btn" id="maintRetry">Try again</button></div></div></section>
+
 <section id="start" class="screen active"><div class="panel"><div class="eyebrow">The Transformation Trail</div><h1 class="title">Programme <span class="accent">Atlas</span></h1>
-<p class="lead">Take a break from TechFest and step into our world. <b>COO Tech &amp; Transformation</b> connects technology performance with transformation delivery.</p>
+<p class="lead">Take a break from TechFest and step into the world of <b>COO Tech &amp; Transformation</b>.</p>
 <div class="duo"><div class="tech"><b>COO Tech</b><span class="sub">helps technology run well and keep improving.</span></div><div class="tr"><b>Change &amp; Transformation</b><span class="sub">helps turn priorities into coordinated change.</span></div></div>
 <p>You have just joined Atlas, a programme building a new service view for technology teams. The dashboard says Green. Is it?</p>
-<p>Four calls, a short walk, one of us to meet and a plantable giveaway. <i>Atlas is fictional; the dilemmas are real.</i></p>
-<div class="actions"><button class="btn" data-go="dashboard">Open the programme pack</button></div></div></section>
+<p>Four calls<span data-need="venue">, a short walk</span><span data-need="people">, one of us to meet</span> and a plantable giveaway. <i>Atlas is fictional; the dilemmas are real.</i></p>
+<div class="actions"><button class="btn" data-go="next">Open the programme pack</button></div></div></section>
 
-<section id="dashboard" class="screen"><div class="panel"><div class="eyebrow">Puzzle 1 · Beneath the dashboard</div><div class="tags"><span class="area tech">COO Tech · Reporting &amp; Insights</span></div><h2>What does 84% complete really mean?</h2><p>The programme report says Green. The technology performance data tells its own story. Compare the two.</p><div class="cards three"><article class="card"><span class="rag green">Green</span><h3>Programme report</h3><div class="metric">84%</div><ul><li>12 of 14 milestones done</li><li>Spend on plan</li></ul></article><article class="card"><h3>Service performance</h3><ul><li>New view live in 2 of 4 domains</li><li>Old platform still runs a key regulatory report</li><li>Old platform: 3 major incidents this quarter</li><li>Run costs unchanged: old platform still on</li></ul></article><article class="card"><h3>Service readiness</h3><ul><li>No service owner yet</li><li>Support model not agreed</li></ul></article></div><p><b>What makes Green misleading?</b></p><div class="choices" data-puzzle="dashboard"></div><div class="actions"><button class="btn submit" data-puzzle="dashboard">Check answer</button><button class="btn light hintBtn" data-target="dashboardHint">Hint</button></div><div class="hint" id="dashboardHint">Finished tasks are not the same as a service that performs.</div><div class="feedback" id="dashboardFeedback" aria-live="polite"></div><div class="actions"><button hidden id="dashboardNext" class="btn" data-go="intervention">Continue</button></div></div></section>
+<section id="dashboard" class="screen"><div class="panel"><div class="eyebrow">Puzzle 1 · Beneath the dashboard</div><div class="tags"><span class="area tech">COO Tech · Reporting &amp; Insights</span></div><h2>What does 84% complete really mean?</h2><p>The programme report says Green. The technology performance data tells its own story. Compare the two.</p><div class="cards three"><article class="card"><span class="rag green">Green</span><h3>Programme report</h3><div class="metric">84%</div><ul><li>12 of 14 milestones done</li><li>Spend on plan</li></ul></article><article class="card"><h3>Service performance</h3><ul><li>New view live in 2 of 4 domains</li><li>Old platform still runs a key regulatory report</li><li>Old platform: 3 major incidents this quarter</li><li>Run costs unchanged: old platform still on</li></ul></article><article class="card"><h3>Service readiness</h3><ul><li>No service owner yet</li><li>Support model not agreed</li></ul></article></div><p><b>What makes Green misleading?</b></p><div class="choices" data-puzzle="dashboard"></div><div class="actions"><button class="btn submit" data-puzzle="dashboard">Check answer</button><button class="btn light hintBtn" data-target="dashboardHint">Hint</button></div><div class="hint" id="dashboardHint">Finished tasks are not the same as a service that performs.</div><div class="feedback" id="dashboardFeedback" aria-live="polite"></div><div class="actions"><button hidden id="dashboardNext" class="btn" data-go="next">Continue</button></div></div></section>
 
-<section id="intervention" class="screen"><div class="panel"><div class="eyebrow">Puzzle 2 · Ready to run?</div><div class="tags"><span class="area tech">COO Tech · Product &amp; Service Management</span><span class="area tr minor">with Change &amp; Transformation · Programme leadership</span></div><h2>What should happen next?</h2><p>The programme lead sees the build is nearly done, with time and budget to spare. But the service isn’t ready to run: nobody owns it, and there are no agreed service levels or support model.</p><div class="choices" data-puzzle="intervention"></div><div class="actions"><button class="btn submit" data-puzzle="intervention">Make the call</button><button class="btn light hintBtn" data-target="interventionHint">Hint</button></div><div class="hint" id="interventionHint">What does a service need before someone can run it?</div><div class="feedback" id="interventionFeedback" aria-live="polite"></div><div class="actions"><button hidden id="interventionNext" class="btn" data-go="portfolio">Continue</button></div></div></section>
+<section id="intervention" class="screen"><div class="panel"><div class="eyebrow">Puzzle 2 · Ready to run?</div><div class="tags"><span class="area tech">COO Tech · Product &amp; Service Management</span><span class="area tr minor">with Change &amp; Transformation · Programme leadership</span></div><h2>What should happen next?</h2><p>The programme lead sees the build is nearly done, with time and budget to spare. But the service isn’t ready to run: nobody owns it, and there are no agreed service levels or support model.</p><div class="choices" data-puzzle="intervention"></div><div class="actions"><button class="btn submit" data-puzzle="intervention">Make the call</button><button class="btn light hintBtn" data-target="interventionHint">Hint</button></div><div class="hint" id="interventionHint">What does a service need before someone can run it?</div><div class="feedback" id="interventionFeedback" aria-live="polite"></div><div class="actions"><button hidden id="interventionNext" class="btn" data-go="next">Continue</button></div></div></section>
 
-<section id="portfolio" class="screen"><div class="panel"><div class="eyebrow">Puzzle 3 · The portfolio collision</div><div class="tags"><span class="area tr">Change &amp; Transformation · Portfolio orchestration</span><span class="area tech minor">with COO Tech · Development &amp; Delivery Support</span></div><h2>Four programmes, two slots</h2><p>Delivery support flags the constraint: one shared engineering team and one release window next quarter. Only two programmes can go at full speed.</p><div class="progs"><article class="prog amber"><div><span class="rag amber">Amber</span> <b>Sentinel</b> <span class="what">· regulatory controls</span></div><div>Fixed deadline. Delay means a missed submission.</div></article><article class="prog red"><div><span class="rag red">Red</span> <b>Hyperion</b> <span class="what">· replaces an access platform going out of support</span></div><div>Vendor support ends next quarter. No safe extension.</div></article><article class="prog amber"><div><span class="rag amber">Amber</span> <b>ClearLedger</b> <span class="what">· automates reconciliations</span></div><div>Manual workaround works for one quarter.</div></article><article class="prog amber"><div><span class="rag amber">Amber</span> <b>Atlas</b> <span class="what">· new service view, 4 domains</span></div><div>2 domains ready. All 4 would crowd out the others.</div></article></div><p><b>Which plan works best?</b></p><div class="choices" data-puzzle="portfolio"></div><div class="actions"><button class="btn submit" data-puzzle="portfolio">Submit proposal</button><button class="btn light hintBtn" data-target="portfolioHint">Hint</button></div><div class="hint" id="portfolioHint">Which programmes cannot wait, and which ones have a fallback?</div><div class="feedback" id="portfolioFeedback" aria-live="polite"></div><div class="actions"><button hidden id="portfolioNext" class="btn" data-go="coffee">Take a short break</button></div></div></section>
+<section id="portfolio" class="screen"><div class="panel"><div class="eyebrow">Puzzle 3 · The portfolio collision</div><div class="tags"><span class="area tr">Change &amp; Transformation · Portfolio orchestration</span><span class="area tech minor">with COO Tech · Development &amp; Delivery Support</span></div><h2>Four programmes, two slots</h2><p>Delivery support flags the constraint: one shared engineering team and one release window next quarter. Only two programmes can go at full speed.</p><div class="progs"><article class="prog amber"><div><span class="rag amber">Amber</span> <b>Sentinel</b> <span class="what">· regulatory controls</span></div><div>Fixed deadline. Delay means a missed submission.</div></article><article class="prog red"><div><span class="rag red">Red</span> <b>Hyperion</b> <span class="what">· replaces an access platform going out of support</span></div><div>Vendor support ends next quarter. No safe extension.</div></article><article class="prog amber"><div><span class="rag amber">Amber</span> <b>ClearLedger</b> <span class="what">· automates reconciliations</span></div><div>Manual workaround works for one quarter.</div></article><article class="prog amber"><div><span class="rag amber">Amber</span> <b>Atlas</b> <span class="what">· new service view, 4 domains</span></div><div>2 domains ready. All 4 would crowd out the others.</div></article></div><p><b>Which plan works best?</b></p><div class="choices" data-puzzle="portfolio"></div><div class="actions"><button class="btn submit" data-puzzle="portfolio">Submit proposal</button><button class="btn light hintBtn" data-target="portfolioHint">Hint</button></div><div class="hint" id="portfolioHint">Which programmes cannot wait, and which ones have a fallback?</div><div class="feedback" id="portfolioFeedback" aria-live="polite"></div><div class="actions"><button hidden id="portfolioNext" class="btn" data-go="next">Continue</button></div></div></section>
 
 <section id="coffee" class="screen"><div class="panel"><div class="eyebrow">Live TechFest stop</div><h2>Time for a short walk</h2>
 <p id="venueIntro"></p>
 <p id="venueTask"></p>
-<div class="note orange test-only"><b>Prototype only:</b> Use the sample display below. The real location, question and answer are configured before TechFest.</div>
-<div class="coffee test-only"><div>Espresso</div><div>Cappuccino</div><div>Coffee</div><div>Hot water</div></div>
-<p><b id="venueQuestion"></b></p><div class="choices" id="venueOptions" hidden></div><label class="sr" for="venueAnswer">Challenge answer</label><input id="venueAnswer" class="field" placeholder="Type your answer" autocomplete="off"><div class="actions"><button id="venueSubmit" class="btn">Check answer</button><button class="btn light hintBtn" data-target="venueHint">Hint</button><button id="venueAccess" class="btn alt">Can’t get there?</button></div><div class="hint" id="venueHint"></div><div class="feedback" id="venueFeedback" aria-live="polite"></div><div class="actions"><button hidden id="venueNext" class="btn" data-go="people">Continue</button></div></div></section>
+<p><b id="venueQuestion"></b></p><div class="choices" id="venueOptions" hidden></div><label class="sr" for="venueAnswer">Challenge answer</label><input id="venueAnswer" class="field" placeholder="Type your answer" autocomplete="off"><div class="actions"><button id="venueSubmit" class="btn">Check answer</button><button class="btn light hintBtn" data-target="venueHint">Hint</button><button id="venueAccess" class="btn alt">Can’t get there?</button></div><div class="hint" id="venueHint"></div><div class="feedback" id="venueFeedback" aria-live="polite"></div><div class="actions"><button hidden id="venueNext" class="btn" data-go="next">Continue</button></div></div></section>
 
 <section id="people" class="screen"><div class="panel"><div class="eyebrow">Meet one of us</div><h2>Add the human view</h2><p>Dashboards show what is happening. People explain how technology and change really work. Time to find one of us.</p>
-<figure class="imgslot" data-img="teamPhoto" data-placeholder="Example photo of how we look: added before TechFest"><img alt="Example of how we look: navy blue shirt with an orange lion, pink lanyard and badge"><figcaption class="spotHint"></figcaption></figure>
-<div class="note"><b>Ask them:</b> "What are you doing for COO Tech &amp; Transformation?” They will share a real example of their work and hand you a Trail Token.</div><div class="token">TRAIL<br>TOKEN</div><p class="test-only">In this test prototype only, you may use the simulated response.</p><div class="actions"><button id="conversationDone" class="btn">I had the conversation</button><button id="simulate" class="btn alt test-only">Use simulated response</button></div><div id="simulated" class="reveal test-only"><b>Simulated response</b><br><br>COO Tech &amp; Transformation brings together two complementary areas. Together, we connect technology performance with transformation delivery. In my own role, I contribute by leading the Data Driven Banking programme, aligning stakeholders, migrations and delivery towards one global Data & Analytics platform. Thereby turning data, analytics and AI ambitions into measurable business value. </div><p><b>They work in</b> (optional):</p><div class="metpick" role="group" aria-label="The colleague you met works in"><button type="button" class="metBtn" data-area="tech" aria-pressed="false">COO Tech</button><button type="button" class="metBtn" data-area="tr" aria-pressed="false">Change &amp; Transformation</button><button type="button" class="metBtn" data-area="both" aria-pressed="false">A bit of both</button></div><label><input type="checkbox" id="tokenCheck"> I received my Trail Token</label><div class="feedback" id="peopleFeedback" aria-live="polite"></div><div class="actions"><button id="peopleNext" class="btn">Prepare Atlas for closure</button></div></div></section>
+<figure class="imgslot" data-img="team"><img alt="A COO Tech &amp; Transformation colleague in a navy blue polo shirt with an orange lion, wearing a pink lanyard and badge"><div class="missing"></div><figcaption class="spotHint"></figcaption></figure>
+<div class="note"><b>Ask them:</b> “What are you doing for COO Tech &amp; Transformation?” They will share a real example and give you a Trail Token.</div><div class="token">TRAIL<br>TOKEN</div><p><b>They work in</b> (optional):</p><div class="metpick" role="group" aria-label="The colleague you met works in"><button type="button" class="metBtn" data-area="tech" aria-pressed="false">COO Tech</button><button type="button" class="metBtn" data-area="tr" aria-pressed="false">Change &amp; Transformation</button><button type="button" class="metBtn" data-area="both" aria-pressed="false">A bit of both</button></div><label><input type="checkbox" id="tokenCheck"> I received my Trail Token</label><div class="feedback" id="peopleFeedback" aria-live="polite"></div><div class="actions"><button id="peopleNext" class="btn">Prepare Atlas for closure</button></div></div></section>
 
-<section id="closure" class="screen"><div class="panel"><div class="eyebrow">Final puzzle · Outcome before closure</div><div class="tags"><span class="area both">Together · COO Tech &amp; Transformation</span></div><h2>Can Atlas close?</h2><p>Two domains are live, with a service owner, agreed service levels and support in place. One small risk remains, and benefits keep coming after the programme team leaves.</p><div class="choices" data-puzzle="closure"></div><div class="actions"><button class="btn submit" data-puzzle="closure">Submit closure proposal</button><button class="btn light hintBtn" data-target="closureHint">Hint</button></div><div class="hint" id="closureHint">What still carries on after the programme team leaves?</div><div class="feedback" id="closureFeedback" aria-live="polite"></div><div class="actions"><button hidden id="closureNext" class="btn" data-go="complete">Finish the Trail</button></div></div></section>
+<section id="closure" class="screen"><div class="panel"><div class="eyebrow">Final puzzle · Outcome before closure</div><div class="tags"><span class="area both">Together · COO Tech &amp; Transformation</span></div><h2>Can Atlas close?</h2><p>Two domains are live, with a service owner, agreed service levels and support in place. One small risk remains, and benefits keep coming after the programme team leaves.</p><div class="choices" data-puzzle="closure"></div><div class="actions"><button class="btn submit" data-puzzle="closure">Submit closure proposal</button><button class="btn light hintBtn" data-target="closureHint">Hint</button></div><div class="hint" id="closureHint">What still carries on after the programme team leaves?</div><div class="feedback" id="closureFeedback" aria-live="polite"></div><div class="actions"><button hidden id="closureNext" class="btn" data-go="next">Finish the Trail</button></div></div></section>
 
 <section id="complete" class="screen"><div class="panel"><div class="check">✓</div><div class="eyebrow">Trail completed</div><h2>Atlas now has an outcome, not just an end date</h2><p>Atlas was not finished when the plan ran out of tasks. It was ready to close when the outcome had an owner.</p>
 <div class="note orange"><b>Claim your giveaway at <span class="pickupName"></span></b>
-<figure class="imgslot" data-img="pickupPhoto" data-placeholder="Pickup point photo: added the day before TechFest"><img alt="The giveaway pickup point"></figure>
+<figure class="imgslot" data-img="pickup"><img alt="The Transformation Trail pickup point sign"><div class="missing"></div><figcaption>Look for this sign in the Networking area.</figcaption></figure>
 <p id="pickupDirections"></p>
-<ol><li>Show this screen.</li><li>Hand in your Trail Token.</li><li>Receive your plantable giveaway.</li><li>Optional: add your email address to the paper list for a chance to win the grand prize.</li></ol></div>
+<ol><li>Show this screen.</li><li data-need="people">Hand in your Trail Token.</li><li>Receive your plantable giveaway.</li><li>Optional: add your email address to the paper list for a chance to win the grand prize.</li></ol></div>
 <h3>Skills you used</h3>
 <div class="tags"><span class="area tech">Reporting &amp; Insights</span><span class="area tech">Product &amp; Service Management</span><span class="area tr">Programme leadership</span><span class="area tr">Portfolio orchestration</span><span class="area tech">Development &amp; Delivery Support</span><span class="area both">Together</span></div>
 <p id="metLine" hidden></p>
 <h3>What COO Tech &amp; Transformation does</h3>
-<p><b>We connect technology performance with transformation delivery.</b></p>
 <div class="duo"><div class="tech"><b>COO Tech</b><span class="sub">helps technology operate and improve</span><ul><li>Reporting &amp; insights</li><li>Product &amp; service management</li><li>Development &amp; delivery support</li><li>Operational improvement</li></ul></div><div class="tr"><b>Change &amp; Transformation</b><span class="sub">helps turn priorities into coordinated change</span><ul><li>Portfolio orchestration</li><li>Programme leadership</li><li>Dependencies, risk &amp; change</li><li>Outcomes &amp; value</li></ul></div></div>
 <p><b>Together</b> we help teams make better decisions, improve execution and deliver sustainable change. We support, connect and enable. Teams own their products, services and delivery.</p>
 <p id="teamContact"></p>
 <details class="recap"><summary>Your Atlas recap</summary><p>You read performance data beneath the dashboard, got the service ready to run, reshaped the portfolio around delivery constraints and closed Atlas with owners in place.</p><p><b>Your plan:</b> full capacity for Sentinel and Hyperion, ClearLedger on its workaround, Atlas to two domains first, and closure once the service, the remaining risk and the benefits all have owners.</p></details>
 <div class="actions"><button id="reset" class="btn light">Restart</button></div></div></section>
-<div class="footer"><span class="test-only">Test prototype for review and improvement · </span>Fictional banking scenario · COO Tech &amp; Transformation</div></main>
-
-<!-- ===== IMAGE DATA =====
-     Filled by embed-images.ps1. Do not type or paste base64 by hand.
-     Empty string = placeholder (test version) or nothing shown (EVENT_MODE). -->
-<script>
-window.TT_IMAGES = {
-teamPhoto: "",
-pickupPhoto: ""
-};
-</script>
-<!-- ===== END IMAGE DATA ===== -->
+<div class="footer">Fictional scenario · COO Tech &amp; Transformation · TechFest</div></main>
 
 <script>
 const CONFIG={
+  // ===== PHOTOS =====
+  // Upload the files to the same folder as index.html, using exactly these names.
+  // Change the name here if you upload a .jpg instead of a .png.
+  // Raise "version" by 1 whenever you replace a photo, so phones fetch the new one.
+  images:{
+    team:'team.jpg',      // one of us at TechFest (portrait)
+    pickup:'pickup.jpg',  // the giveaway pickup point sign (portrait)
+    version:1
+  },
   // ===== TEAM =====
   team:{
-    spotHint:'Look for people wearing a navy blue shirt with an orange lion on the breast and a pink lanyard and badge.',
+    spotHint:'Look for one of us in a blue shirt with orange lion and a pink COO Tech & Transformation badge.',
     contact:'' // optional, shown on the final screen, e.g. 'Want to know more? Find COO Tech & Transformation on Teams.'
   },
-  // ===== PICKUP POINT (fill in the day before) =====
+  // ===== PICKUP POINT =====
   pickup:{
     locationName:'the COO Tech & Transformation pickup point',
     directions:'' // one sentence, e.g. 'Next to the main stage, left of the coffee bar.'
   },
-  // ===== LIVE VENUE CHALLENGE (fill in the day before) =====
+  // ===== VENUE CLUE (fill in the day before) =====
   venue:{
     locationName:'the central area',
     intro:'That is where you are most likely to run into one of us.',
@@ -97,7 +109,7 @@ const CONFIG={
     accepted:['espresso'], // case, accents and punctuation are ignored; an answer containing an accepted word also counts
     hint:'Look at the first choice in the top row.',
     retry:'Not quite. Have another look.',
-    fallback:'Prototype: the answer is Espresso. At TechFest, any COO Tech & Transformation colleague can give you the answer.'
+    fallback:'Can’t get there? Ask any COO Tech & Transformation colleague for the answer.'
   },
   // ===== PUZZLES =====
   puzzles:{
@@ -135,47 +147,85 @@ const CONFIG={
       inWork:[['both','Change & Transformation drives the change and makes sure it lands. COO Tech helps it keep performing and improving afterwards.']]}
   }
 };
+const DEFAULT_MAINTENANCE='The Trail is having a short break. Please try again in a few minutes, or come and say hello to us in the meantime.';
 
-const state={selected:{},conversation:false,met:null},steps={start:0,dashboard:16,intervention:32,portfolio:49,coffee:65,people:80,closure:92,complete:100},$=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];
-const SAVE_KEY='tt-atlas-progress',SAVE_HOURS=12;let current='start';
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({screen:current,conversation:state.conversation,met:state.met,t:Date.now()}))}catch(e){}}
-function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!d||!(d.screen in steps)||Date.now()-d.t>SAVE_HOURS*36e5)return;state.conversation=!!d.conversation;if(d.met in AREAS)setMet(d.met);if(d.screen!=='start')go(d.screen,true)}catch(e){}}
-function go(id,instant){current=id;$$('.screen').forEach(x=>x.classList.toggle('active',x.id===id));$('#bar').style.width=steps[id]+'%';window.scrollTo({top:0,behavior:instant?'auto':'smooth'});if(id==='complete')updateMet();save()}
-function choiceButton(root,title,detail,onPick){const b=document.createElement('button');b.type='button';b.className='choice';b.setAttribute('role','radio');b.setAttribute('aria-checked','false');const s=document.createElement('strong');s.textContent=title;b.append(s);if(detail){const d=document.createElement('small');d.textContent=detail;b.append(d)}b.onclick=()=>{root.querySelectorAll('.choice').forEach(x=>{x.classList.remove('selected');x.setAttribute('aria-checked','false')});b.classList.add('selected');b.setAttribute('aria-checked','true');onPick()};root.append(b)}
-function render(id){const root=document.querySelector(`.choices[data-puzzle="${id}"]`);CONFIG.puzzles[id].choices.forEach(([k,t,d])=>choiceButton(root,`${k}. ${t}`,d,()=>state.selected[id]=k))}['dashboard','intervention','portfolio','closure'].forEach(render);
+const S=SETTINGS,state={selected:{},met:null},$=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)];
+const ALL=['start','dashboard','intervention','portfolio','coffee','people','closure','complete'];
+const SAVE_KEY='tt-atlas-progress',SAVE_HOURS=12;let current='start',order=ALL.slice();
+function buildOrder(){order=ALL.filter(id=>id==='coffee'?S.stops.venue:id==='people'?S.stops.people:true)}
+function nextOf(id){for(let i=ALL.indexOf(id)+1;i<ALL.length;i++)if(order.includes(ALL[i]))return ALL[i];return 'complete'}
+function percent(id){const i=order.indexOf(id);return i<1?0:Math.round(i/(order.length-1)*100)}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({screen:current,met:state.met,t:Date.now()}))}catch(e){}}
+function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!d||!ALL.includes(d.screen)||Date.now()-d.t>SAVE_HOURS*36e5)return;if(d.met in AREAS)setMet(d.met);if(d.screen!=='start')go(d.screen,true)}catch(e){}}
+function go(id,instant){if(!order.includes(id))id=nextOf(id);current=id;$$('.screen').forEach(x=>x.classList.toggle('active',x.id===id));$('#bar').style.width=percent(id)+'%';window.scrollTo({top:0,behavior:instant?'auto':'smooth'});if(id==='complete')updateMet();save()}
+function choiceButton(root,title,onPick){const b=document.createElement('button');b.type='button';b.className='choice';b.setAttribute('role','radio');b.setAttribute('aria-checked','false');const s=document.createElement('strong');s.textContent=title;b.append(s);b.onclick=()=>{root.querySelectorAll('.choice').forEach(x=>{x.classList.remove('selected');x.setAttribute('aria-checked','false')});b.classList.add('selected');b.setAttribute('aria-checked','true');onPick()};root.append(b)}
+function render(id){const root=document.querySelector(`.choices[data-puzzle="${id}"]`);CONFIG.puzzles[id].choices.forEach(([k,t])=>choiceButton(root,`${k}. ${t}`,()=>state.selected[id]=k))}['dashboard','intervention','portfolio','closure'].forEach(render);
 const AREAS={tech:'COO Tech',tr:'Change & Transformation',both:'Together'};
 function inWork(list){return list.map(([area,text])=>{const s=document.createElement('span');s.className='inwork';const b=document.createElement('span');b.className='area '+area;b.textContent=AREAS[area];s.append(b,text);return s})}
 function feedback(id,ok,text,extra){const e=$('#'+id+'Feedback');e.className='feedback show '+(ok?'ok':'bad');e.textContent=text;if(extra)e.append(...inWork(extra))}
-document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go);const h=e.target.closest('.hintBtn');if(h)$('#'+h.dataset.target).classList.add('show')});
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go==='next'?nextOf(current):g.dataset.go);const h=e.target.closest('.hintBtn');if(h)$('#'+h.dataset.target).classList.add('show')});
 $$('.submit').forEach(b=>b.onclick=()=>{const id=b.dataset.puzzle,P=CONFIG.puzzles[id],ok=state.selected[id]===P.answer;feedback(id,ok,ok?P.ok:P.bad,ok&&P.inWork);if(ok)$('#'+id+'Next').hidden=false});
 
-// Images, team and pickup text
-const IMAGES=window.TT_IMAGES||{};
-$$('.imgslot').forEach(f=>{const src=IMAGES[f.dataset.img];if(src)f.querySelector('img').src=src;else f.classList.add('empty')});
+// Photos, team and pickup text
+$$('.imgslot').forEach(f=>{const name=CONFIG.images[f.dataset.img],img=f.querySelector('img');
+  if(!name){f.hidden=true;return}
+  f.querySelector('.missing').textContent='Photo not uploaded yet: '+name;
+  img.onerror=()=>f.classList.add('no-photo');
+  img.src=name+(CONFIG.images.version?'?v='+CONFIG.images.version:'')});
 $$('.spotHint').forEach(x=>{x.textContent=CONFIG.team.spotHint;x.hidden=!CONFIG.team.spotHint});
 $('#teamContact').textContent=CONFIG.team.contact;$('#teamContact').hidden=!CONFIG.team.contact;
 $$('.pickupName').forEach(x=>x.textContent=CONFIG.pickup.locationName);
 $('#pickupDirections').textContent=CONFIG.pickup.directions;$('#pickupDirections').hidden=!CONFIG.pickup.directions;
 
-// Venue challenge
+// Venue clue
 const V=CONFIG.venue;let venuePick=null;
 $('#venueIntro').append('Head to ',Object.assign(document.createElement('b'),{textContent:V.locationName}),'. '+V.intro);
 $('#venueTask').textContent=V.task;$('#venueQuestion').textContent=V.question;$('#venueHint').textContent=V.hint;
-if(V.options&&V.options.length){$('#venueOptions').hidden=false;$('#venueAnswer').hidden=true;V.options.forEach(o=>choiceButton($('#venueOptions'),o,'',()=>venuePick=o))}
-const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-$('#venueSubmit').onclick=()=>{const a=norm(V.options&&V.options.length?venuePick:$('#venueAnswer').value),ok=!!a&&V.accepted.map(norm).some(k=>k&&(a===k||(' '+a+' ').includes(' '+k+' ')));feedback('venue',ok,ok?'Detail spotted. Time to find one of us.':V.retry);if(ok)$('#venueNext').hidden=false};
+if(V.options&&V.options.length){$('#venueOptions').hidden=false;$('#venueAnswer').hidden=true;V.options.forEach(o=>choiceButton($('#venueOptions'),o,()=>venuePick=o))}
+const norm=x=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+$('#venueSubmit').onclick=()=>{const a=norm(V.options&&V.options.length?venuePick:$('#venueAnswer').value),ok=!!a&&V.accepted.map(norm).some(k=>k&&(a===k||(' '+a+' ').includes(' '+k+' ')));feedback('venue',ok,ok?(S.stops.people?'Detail spotted. Time to find one of us.':'Detail spotted. One final decision remains.'):V.retry);if(ok)$('#venueNext').hidden=false};
 $('#venueAnswer').onkeydown=e=>{if(e.key==='Enter')$('#venueSubmit').click()};
 $('#venueAccess').onclick=()=>{feedback('venue',true,V.fallback);$('#venueNext').hidden=false};
 
-// People
-$('#conversationDone').onclick=()=>{state.conversation=true;save();feedback('people',true,'Conversation noted. Confirm the Trail Token to continue.')};
-$('#simulate').onclick=()=>{state.conversation=true;save();$('#simulated').classList.add('show');feedback('people',true,'Simulated response shown. Confirm the Trail Token to continue.')};
+// Meet one of us
 function setMet(area){state.met=area;$$('.metBtn').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.area===area)))}
 $$('.metBtn').forEach(b=>b.onclick=()=>{setMet(b.dataset.area);save()});
-function updateMet(){const line={tech:'You met someone from COO Tech.',tr:'You met someone from Change & Transformation.',both:'You met someone who works across both areas.'}[state.met];$('#metLine').textContent=line||'';$('#metLine').hidden=!line}
-$('#peopleNext').onclick=()=>{const ok=state.conversation&&$('#tokenCheck').checked;feedback('people',ok,ok?'Token confirmed. One final decision remains.':'Talk to one of us and confirm the Trail Token first.');if(ok)go('closure')};
+function updateMet(){const line={tech:'You met someone from COO Tech.',tr:'You met someone from Change & Transformation.',both:'You met someone who works across both areas.'}[state.met];$('#metLine').textContent=S.stops.people&&line?line:'';$('#metLine').hidden=!(S.stops.people&&line)}
+$('#peopleNext').onclick=()=>{const ok=$('#tokenCheck').checked;feedback('people',ok,ok?'Token confirmed. One final decision remains.':'Talk to one of us, then tick the Trail Token box to continue.');if(ok)go(nextOf('people'))};
 $('#reset').onclick=()=>{if(confirm('Restart the Trail?')){try{localStorage.removeItem(SAVE_KEY)}catch(e){}location.reload()}};
-const themes=['auto','light','dark'];$('#theme').onclick=()=>{const cur=document.documentElement.dataset.theme,next=themes[(themes.indexOf(cur)+1)%themes.length];document.documentElement.dataset.theme=next;$('#theme').textContent=next==='light'?'☀':next==='dark'?'☾':'◐'};
+
+// Look and feel
+const themes=['dark','light','auto'],themeIcon=t=>t==='light'?'☀':t==='dark'?'☾':'◐';
+$('#theme').textContent=themeIcon(document.documentElement.dataset.theme);
+$('#theme').onclick=()=>{const next=themes[(themes.indexOf(document.documentElement.dataset.theme)+1)%themes.length];document.documentElement.dataset.theme=next;$('#theme').textContent=themeIcon(next)};
 $$('.size').forEach(b=>b.onclick=()=>{$$('.size').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');document.documentElement.dataset.size=b.dataset.size});
+
+// Settings: apply, and optionally follow status.json
+function applySettings(){
+  document.documentElement.dataset.mode=S.mode==='maintenance'?'maintenance':'game';
+  $('#maintMsg').textContent=S.maintenanceMessage||DEFAULT_MAINTENANCE;
+  buildOrder();
+  $$('[data-need]').forEach(el=>el.hidden=!S.stops[el.dataset.need]);
+  updateMet();
+  if(S.mode!=='maintenance')go(current,true)
+}
+let polling=null;
+function poll(){if(!polling)polling=setInterval(syncStatus,60000)}
+async function syncStatus(){
+  if(!S.remote)return;
+  try{
+    const r=await fetch(S.remote+'?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return;
+    const d=await r.json();
+    if(d.mode==='game'||d.mode==='maintenance')S.mode=d.mode;
+    if(d.stops&&typeof d.stops==='object'){if('venue' in d.stops)S.stops.venue=!!d.stops.venue;if('people' in d.stops)S.stops.people=!!d.stops.people}
+    if(typeof d.maintenanceMessage==='string')S.maintenanceMessage=d.maintenanceMessage;
+    applySettings();
+    if(S.mode==='maintenance')poll()
+  }catch(e){}
+}
+$('#maintRetry').onclick=()=>syncStatus();
+applySettings();
 restore();
+syncStatus();
 </script></body></html>
