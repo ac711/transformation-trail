@@ -1,5 +1,5 @@
 {
-  "mode": "game",
+  "mode": "maintenance",
   "stops": { "venue": true, "people": true },
   "maintenanceMessage": ""
 }
